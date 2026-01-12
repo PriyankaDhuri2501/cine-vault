@@ -5,6 +5,7 @@ import connectDB from './config/database.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 import { apiLimiter } from './middleware/rateLimit.middleware.js';
 import authRoutes from './routes/auth.routes.js';
+import movieRoutes from './routes/movie.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -38,7 +39,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/movies', movieRoutes); // Will be added in next step
+app.use('/api/movies', movieRoutes);
 
 // 404 Handler (must be after all routes)
 app.use(notFoundHandler);
