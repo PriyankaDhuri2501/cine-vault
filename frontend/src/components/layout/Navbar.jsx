@@ -13,15 +13,23 @@ import {
   useTheme,
   InputBase,
   alpha,
+  Avatar,
+  Divider,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { isAuthenticated, user, logout, isAdmin } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleMenuOpen = (event) => {
@@ -30,6 +38,19 @@ const Navbar = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleUserMenuOpen = (event) => {
+    setUserMenuAnchor(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+  };
+
+  const handleLogout = () => {
+    handleUserMenuClose();
+    logout();
   };
 
   const handleSearch = (e) => {
@@ -151,19 +172,60 @@ const Navbar = () => {
             >
               Search
             </Button>
-            <Button
-              component={Link}
-              to="/login"
-              color="inherit"
-              sx={{
-                color: 'text.primary',
-                '&:hover': {
-                  backgroundColor: alpha(theme.palette.common.white, 0.1),
-                },
-              }}
-            >
-              Login
-            </Button>
+            {isAuthenticated ? (
+              <>
+                {isAdmin && (
+                  <Button
+                    component={Link}
+                    to="/admin/dashboard"
+                    color="inherit"
+                    startIcon={<DashboardIcon />}
+                    sx={{
+                      color: 'text.primary',
+                      '&:hover': {
+                        backgroundColor: alpha(theme.palette.common.white, 0.1),
+                      },
+                    }}
+                  >
+                    Dashboard
+                  </Button>
+                )}
+                <IconButton
+                  onClick={handleUserMenuOpen}
+                  sx={{
+                    color: 'text.primary',
+                    '&:hover': {
+                      backgroundColor: alpha(theme.palette.common.white, 0.1),
+                    },
+                  }}
+                >
+                  <Avatar
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      bgcolor: 'primary.main',
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    {user?.username?.charAt(0).toUpperCase() || 'U'}
+                  </Avatar>
+                </IconButton>
+              </>
+            ) : (
+              <Button
+                component={Link}
+                to="/login"
+                color="inherit"
+                sx={{
+                  color: 'text.primary',
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.common.white, 0.1),
+                  },
+                }}
+              >
+                Login
+              </Button>
+            )}
           </Box>
         ) : (
           <IconButton
@@ -203,12 +265,77 @@ const Navbar = () => {
           >
             Search
           </MenuItem>
-          <MenuItem
-            component={Link}
-            to="/login"
-            onClick={handleMenuClose}
-          >
-            Login
+          {isAuthenticated ? (
+            <>
+              {isAdmin && (
+                <MenuItem
+                  component={Link}
+                  to="/admin/dashboard"
+                  onClick={handleMenuClose}
+                >
+                  Dashboard
+                </MenuItem>
+              )}
+              <Divider />
+              <MenuItem onClick={handleLogout}>
+                <LogoutIcon sx={{ mr: 1 }} />
+                Logout
+              </MenuItem>
+            </>
+          ) : (
+            <MenuItem
+              component={Link}
+              to="/login"
+              onClick={handleMenuClose}
+            >
+              Login
+            </MenuItem>
+          )}
+        </Menu>
+
+        {/* User Menu - Desktop */}
+        <Menu
+          anchorEl={userMenuAnchor}
+          open={Boolean(userMenuAnchor)}
+          onClose={handleUserMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          PaperProps={{
+            sx: {
+              backgroundColor: 'background.paper',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              minWidth: 200,
+            },
+          }}
+        >
+          <Box sx={{ px: 2, py: 1.5 }}>
+            <Typography variant="body2" fontWeight={600}>
+              {user?.username}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {user?.email}
+            </Typography>
+          </Box>
+          <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+          {isAdmin && (
+            <MenuItem
+              component={Link}
+              to="/admin/dashboard"
+              onClick={handleUserMenuClose}
+            >
+              <DashboardIcon sx={{ mr: 1, fontSize: 20 }} />
+              Admin Dashboard
+            </MenuItem>
+          )}
+          <MenuItem onClick={handleLogout}>
+            <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
+            Logout
           </MenuItem>
         </Menu>
       </Toolbar>
