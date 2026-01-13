@@ -125,7 +125,7 @@ export const deleteMovie = asyncHandler(async (req, res, next) => {
 
 /**
  * @route   GET /api/movies/search
- * @desc    Search movies by name or description
+ * @desc    Search movies by name or description (supports partial matching)
  * @access  Public
  */
 export const searchMovies = asyncHandler(async (req, res, next) => {
@@ -138,15 +138,22 @@ export const searchMovies = asyncHandler(async (req, res, next) => {
     return next(new ValidationError('Search query parameter "q" is required'));
   }
 
-  // Use MongoDB text search (requires text index on title and description)
+  // Use regex for partial matching (case-insensitive)
+  // This allows searching for "goo" to find "good"
+  const searchTerm = q.trim();
+  const searchRegex = new RegExp(searchTerm, 'i'); // 'i' flag for case-insensitive
+
   const searchQuery = {
-    $text: { $search: q.trim() },
+    $or: [
+      { title: { $regex: searchRegex } },
+      { description: { $regex: searchRegex } },
+    ],
   };
 
   // Execute search with pagination
   const movies = await Movie.find(searchQuery)
     .populate('addedBy', 'username email')
-    .sort({ score: { $meta: 'textScore' } }) // Sort by relevance score
+    .sort({ createdAt: -1 }) // Sort by newest first
     .skip(skip)
     .limit(limit);
 

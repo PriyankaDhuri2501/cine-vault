@@ -6,6 +6,7 @@ import { errorHandler, notFoundHandler } from './middleware/error.middleware.js'
 import { apiLimiter } from './middleware/rateLimit.middleware.js';
 import authRoutes from './routes/auth.routes.js';
 import movieRoutes from './routes/movie.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -40,6 +41,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 Handler (must be after all routes)
 app.use(notFoundHandler);

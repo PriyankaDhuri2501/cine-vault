@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -20,17 +20,49 @@ import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import PeopleIcon from '@mui/icons-material/People';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isAuthenticated, user, logout, isAdmin } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Sync search query with URL when on search page
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const q = urlParams.get('q') || '';
+    if (location.pathname === '/search' && q !== searchQuery) {
+      setSearchQuery(q);
+    } else if (location.pathname !== '/search' && searchQuery) {
+      // Clear search when navigating away from search page
+      setSearchQuery('');
+    }
+  }, [location.pathname, location.search]);
+
+  // Real-time search: Navigate to search page as user types (debounced)
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      // If search is cleared and we're on search page, navigate to home
+      if (location.pathname === '/search') {
+        navigate('/');
+      }
+      return;
+    }
+
+    // Debounce navigation to search page
+    const timeoutId = setTimeout(() => {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }, 300); // 300ms debounce for smoother UX
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, navigate, location.pathname]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -55,10 +87,14 @@ const Navbar = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    // Navigation is handled by useEffect, but we can keep this for Enter key
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
     }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
@@ -123,19 +159,24 @@ const Navbar = () => {
           >
             <SearchIcon sx={{ color: 'text.secondary' }} />
           </Box>
-          <InputBase
-            placeholder="Search movies..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            sx={{
-              color: 'inherit',
-              width: '100%',
-              '& .MuiInputBase-input': {
-                padding: '10px 10px 10px 45px',
+            <InputBase
+              placeholder="Search movies..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch(e);
+                }
+              }}
+              sx={{
+                color: 'inherit',
                 width: '100%',
-              },
-            }}
-          />
+                '& .MuiInputBase-input': {
+                  padding: '10px 10px 10px 45px',
+                  width: '100%',
+                },
+              }}
+            />
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
@@ -301,14 +342,24 @@ const Navbar = () => {
           </Box>
           <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
           {isAdmin && (
-            <MenuItem
-              component={Link}
-              to="/admin/dashboard"
-              onClick={handleUserMenuClose}
-            >
-              <DashboardIcon sx={{ mr: 1, fontSize: 20 }} />
-              Admin Dashboard
-            </MenuItem>
+            <>
+              <MenuItem
+                component={Link}
+                to="/admin/dashboard"
+                onClick={handleUserMenuClose}
+              >
+                <DashboardIcon sx={{ mr: 1, fontSize: 20 }} />
+                Admin Dashboard
+              </MenuItem>
+              <MenuItem
+                component={Link}
+                to="/admin/dashboard?tab=users"
+                onClick={handleUserMenuClose}
+              >
+                <PeopleIcon sx={{ mr: 1, fontSize: 20 }} />
+                Manage Users
+              </MenuItem>
+            </>
           )}
           <MenuItem onClick={handleLogout}>
             <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
