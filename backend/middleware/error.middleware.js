@@ -1,5 +1,6 @@
 import { AppError } from '../utils/errors.js';
 import { formatError } from '../utils/helpers.js';
+import { sanitizeError } from '../utils/responseSanitizer.js';
 
 /**
  * Global Error Handling Middleware
@@ -45,15 +46,19 @@ export const errorHandler = (err, req, res, next) => {
     error = new AppError(message, 401);
   }
 
-  // Send error response
+  // Send error response (sanitized)
   const statusCode = error.statusCode || 500;
   const status = error.status || 'error';
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  // Sanitize error response
+  const sanitizedError = sanitizeError(error, isDevelopment);
 
   res.status(statusCode).json({
     status,
-    message: error.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && {
-      stack: err.stack,
+    message: sanitizedError.message || 'Internal Server Error',
+    ...(isDevelopment && {
+      stack: sanitizedError.stack,
       error: formatError(err),
     }),
   });

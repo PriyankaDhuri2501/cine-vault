@@ -185,8 +185,8 @@ const SearchPage = () => {
         /* Empty State - No Search Query */
         <Box sx={{ mb: 4, textAlign: 'center' }}>
           <Typography variant="h3" sx={{ fontWeight: 700, mb: 2 }}>
-            Search Movies
-          </Typography>
+        Search Movies
+      </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
             Use the search bar in the navigation to find movies by title or description
           </Typography>
@@ -313,7 +313,7 @@ const SearchPage = () => {
             >
               <Typography variant="body2" color="text.secondary">
                 Page {page} of {totalPages}
-              </Typography>
+      </Typography>
               <Pagination
                 count={totalPages}
                 page={page}

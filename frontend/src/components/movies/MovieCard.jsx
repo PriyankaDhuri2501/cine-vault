@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
   Card,
   CardMedia,
@@ -14,10 +15,14 @@ import { Movie as MovieIcon } from '@mui/icons-material';
 const MovieCard = ({ movie }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handleClick = () => {
-    // Navigate to movie details page (to be implemented)
-    // navigate(`/movies/${movie._id}`);
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: `/movies/${movie._id}` } });
+      return;
+    }
+    navigate(`/movies/${movie._id}`);
   };
 
   const formatDate = (dateString) => {

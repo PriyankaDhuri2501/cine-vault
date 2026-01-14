@@ -4,6 +4,8 @@ import {
   getAllMovies,
   getMovieById,
   createMovie,
+  createBulkMovies,
+  getQueueStatus,
   updateMovie,
   deleteMovie,
   searchMovies,
@@ -95,6 +97,20 @@ router.get('/:id', getMovieById);
  * @access  Private/Admin
  */
 router.post('/', protect, isAdmin, movieValidation, validate, createMovie);
+
+/**
+ * @route   POST /api/movies/bulk
+ * @desc    Create multiple movies using queue (bulk upload)
+ * @access  Private/Admin
+ */
+router.post('/bulk', protect, isAdmin, createBulkMovies);
+
+/**
+ * @route   GET /api/movies/queue/status
+ * @desc    Get queue processing status
+ * @access  Private/Admin
+ */
+router.get('/queue/status', protect, isAdmin, getQueueStatus);
 
 /**
  * @route   PUT /api/movies/:id

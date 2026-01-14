@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import MovieDetails from './pages/MovieDetails';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -55,6 +56,16 @@ function App() {
             element={
               <ProtectedRoute adminOnly={true}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Movie Details */}
+          <Route
+            path="/movies/:id"
+            element={
+              <ProtectedRoute>
+                <MovieDetails />
               </ProtectedRoute>
             }
           />

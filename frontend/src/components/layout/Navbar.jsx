@@ -130,35 +130,35 @@ const Navbar = () => {
         </Typography>
 
         {/* Search Bar - Responsive */}
-        <Box
-          component="form"
-          onSubmit={handleSearch}
-          sx={{
-            flexGrow: 1,
+          <Box
+            component="form"
+            onSubmit={handleSearch}
+            sx={{
+              flexGrow: 1,
             maxWidth: { xs: '100%', md: '600px' },
-            position: 'relative',
-            borderRadius: 1,
-            backgroundColor: alpha(theme.palette.common.white, 0.1),
-            '&:hover': {
-              backgroundColor: alpha(theme.palette.common.white, 0.15),
-            },
+              position: 'relative',
+              borderRadius: 1,
+              backgroundColor: alpha(theme.palette.common.white, 0.1),
+              '&:hover': {
+                backgroundColor: alpha(theme.palette.common.white, 0.15),
+              },
             marginRight: { xs: 1, md: 3 },
             display: { xs: 'none', sm: 'flex' }, // Hide on very small screens, show on sm and up
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              padding: '0 16px',
-              position: 'absolute',
-              pointerEvents: 'none',
-              display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
             }}
           >
-            <SearchIcon sx={{ color: 'text.secondary' }} />
-          </Box>
+            <Box
+              sx={{
+                padding: '0 16px',
+                position: 'absolute',
+                pointerEvents: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <SearchIcon sx={{ color: 'text.secondary' }} />
+            </Box>
             <InputBase
               placeholder="Search movies..."
               value={searchQuery}
@@ -177,7 +177,7 @@ const Navbar = () => {
                 },
               }}
             />
-        </Box>
+          </Box>
 
         <Box sx={{ flexGrow: 1 }} />
 
@@ -200,20 +200,20 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 {isAdmin && (
-                  <Button
-                    component={Link}
+            <Button
+              component={Link}
                     to="/admin/dashboard"
-                    color="inherit"
+              color="inherit"
                     startIcon={<DashboardIcon />}
-                    sx={{
-                      color: 'text.primary',
-                      '&:hover': {
-                        backgroundColor: alpha(theme.palette.common.white, 0.1),
-                      },
-                    }}
-                  >
+              sx={{
+                color: 'text.primary',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.common.white, 0.1),
+                },
+              }}
+            >
                     Dashboard
-                  </Button>
+            </Button>
                 )}
                 <IconButton
                   onClick={handleUserMenuOpen}
@@ -237,19 +237,19 @@ const Navbar = () => {
                 </IconButton>
               </>
             ) : (
-              <Button
-                component={Link}
-                to="/login"
-                color="inherit"
-                sx={{
-                  color: 'text.primary',
-                  '&:hover': {
-                    backgroundColor: alpha(theme.palette.common.white, 0.1),
-                  },
-                }}
-              >
-                Login
-              </Button>
+            <Button
+              component={Link}
+              to="/login"
+              color="inherit"
+              sx={{
+                color: 'text.primary',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.common.white, 0.1),
+                },
+              }}
+            >
+              Login
+            </Button>
             )}
           </Box>
         ) : (
@@ -286,11 +286,11 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               {isAdmin && (
-                <MenuItem
-                  component={Link}
+          <MenuItem
+            component={Link}
                   to="/admin/dashboard"
-                  onClick={handleMenuClose}
-                >
+            onClick={handleMenuClose}
+          >
                   Dashboard
                 </MenuItem>
               )}
@@ -298,15 +298,15 @@ const Navbar = () => {
               <MenuItem onClick={handleLogout}>
                 <LogoutIcon sx={{ mr: 1 }} />
                 Logout
-              </MenuItem>
+          </MenuItem>
             </>
           ) : (
-            <MenuItem
-              component={Link}
-              to="/login"
-              onClick={handleMenuClose}
-            >
-              Login
+          <MenuItem
+            component={Link}
+            to="/login"
+            onClick={handleMenuClose}
+          >
+            Login
             </MenuItem>
           )}
         </Menu>

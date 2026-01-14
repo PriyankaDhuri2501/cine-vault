@@ -20,10 +20,12 @@ import {
   People as PeopleIcon,
   Add as AddIcon,
   Close as CloseIcon,
+  CloudUpload as CloudUploadIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import MovieForm from '../components/admin/MovieForm';
 import MoviesTable from '../components/admin/MoviesTable';
+import BulkMovieUpload from '../components/admin/BulkMovieUpload';
 import AdminUsersManager from '../components/admin/AdminUsersManager';
 import ConfirmationModal from '../components/common/ConfirmationModal';
 import api from '../utils/api';
@@ -32,7 +34,8 @@ const AdminDashboard = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const initialTab = tabParam === 'users' ? 1 : 0;
+  // Tab mapping: 0=Movies, 1=Bulk Upload, 2=Users
+  const initialTab = tabParam === 'users' ? 2 : tabParam === 'bulk' ? 1 : 0;
   const [tabValue, setTabValue] = useState(initialTab);
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +53,8 @@ const AdminDashboard = () => {
   // Sync tab with URL param
   useEffect(() => {
     if (tabParam === 'users') {
+      setTabValue(2);
+    } else if (tabParam === 'bulk') {
       setTabValue(1);
     } else {
       setTabValue(0);
@@ -187,6 +192,12 @@ const AdminDashboard = () => {
             sx={{ minHeight: 72 }}
           />
           <Tab
+            icon={<CloudUploadIcon />}
+            iconPosition="start"
+            label="Bulk Upload"
+            sx={{ minHeight: 72 }}
+          />
+          <Tab
             icon={<PeopleIcon />}
             iconPosition="start"
             label="Users"
@@ -200,23 +211,40 @@ const AdminDashboard = () => {
         {/* Movies Tab */}
         {tabValue === 0 && (
           <Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
               <Typography variant="h5" sx={{ fontWeight: 600 }}>
                 Movie Management
               </Typography>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => handleOpenMovieDialog()}
-                sx={{
-                  background: 'linear-gradient(45deg, #e50914, #f40612)',
-                  '&:hover': {
-                    background: 'linear-gradient(45deg, #f40612, #b20710)',
-                  },
-                }}
-              >
-                Add Movie
-              </Button>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  // Go to Bulk Upload tab (index 1)
+                  onClick={() => setTabValue(1)}
+                  sx={{
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    color: 'text.primary',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      backgroundColor: 'rgba(229, 9, 20, 0.1)',
+                    },
+                  }}
+                >
+                  Bulk Upload
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => handleOpenMovieDialog()}
+                  sx={{
+                    background: 'linear-gradient(45deg, #e50914, #f40612)',
+                    '&:hover': {
+                      background: 'linear-gradient(45deg, #f40612, #b20710)',
+                    },
+                  }}
+                >
+                  Add Movie
+                </Button>
+              </Box>
             </Box>
 
             {loading ? (
@@ -233,8 +261,18 @@ const AdminDashboard = () => {
           </Box>
         )}
 
+        {/* Bulk Upload Tab */}
+        {tabValue === 1 && (
+          <BulkMovieUpload
+            onSuccess={() => {
+              fetchMovies();
+              setTabValue(0); // Switch back to movies tab
+            }}
+          />
+        )}
+
         {/* Users Tab */}
-        {tabValue === 1 && <AdminUsersManager />}
+        {tabValue === 2 && <AdminUsersManager />}
       </Box>
 
       {/* Add/Edit Movie Dialog */}
