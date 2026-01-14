@@ -7,8 +7,17 @@ import {
   Alert,
   Grid,
   InputAdornment,
+  IconButton,
+  Divider,
 } from '@mui/material';
-import { Movie as MovieIcon, AccessTime as AccessTimeIcon } from '@mui/icons-material';
+import {
+  Movie as MovieIcon,
+  AccessTime as AccessTimeIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  PlayArrow as PlayArrowIcon,
+  Link as LinkIcon,
+} from '@mui/icons-material';
 
 const MovieForm = ({ movie = null, onSubmit, onCancel, loading = false }) => {
   const [formData, setFormData] = useState({
@@ -18,8 +27,11 @@ const MovieForm = ({ movie = null, onSubmit, onCancel, loading = false }) => {
     duration: '',
     rating: '',
     poster: '',
+    trailerId: '',
+    streamingLinks: [],
   });
   const [errors, setErrors] = useState({});
+  const [streamingLinkErrors, setStreamingLinkErrors] = useState({});
 
   useEffect(() => {
     if (movie) {
@@ -35,6 +47,8 @@ const MovieForm = ({ movie = null, onSubmit, onCancel, loading = false }) => {
         duration: movie.duration?.toString() || '',
         rating: movie.rating?.toString() || '',
         poster: movie.poster || '',
+        trailerId: movie.trailerId || '',
+        streamingLinks: movie.streamingLinks || [],
       });
     }
   }, [movie]);
@@ -95,8 +109,27 @@ const MovieForm = ({ movie = null, onSubmit, onCancel, loading = false }) => {
       newErrors.poster = 'Please enter a valid URL';
     }
 
+    // Validate trailer ID (must be 11 characters if provided)
+    if (formData.trailerId && !/^[a-zA-Z0-9_-]{11}$/.test(formData.trailerId)) {
+      newErrors.trailerId = 'Trailer ID must be a valid YouTube video ID (11 characters)';
+    }
+
+    // Validate streaming links
+    const linkErrors = {};
+    formData.streamingLinks.forEach((link, index) => {
+      if (!link.platform?.trim()) {
+        linkErrors[`platform_${index}`] = 'Platform name is required';
+      }
+      if (!link.url?.trim()) {
+        linkErrors[`url_${index}`] = 'URL is required';
+      } else if (!isValidUrl(link.url)) {
+        linkErrors[`url_${index}`] = 'Please enter a valid URL';
+      }
+    });
+    setStreamingLinkErrors(linkErrors);
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length === 0 && Object.keys(linkErrors).length === 0;
   };
 
   const isValidUrl = (string) => {
@@ -105,6 +138,54 @@ const MovieForm = ({ movie = null, onSubmit, onCancel, loading = false }) => {
       return true;
     } catch (_) {
       return false;
+    }
+  };
+
+  const handleAddStreamingLink = () => {
+    setFormData((prev) => ({
+      ...prev,
+      streamingLinks: [...prev.streamingLinks, { platform: '', url: '' }],
+    }));
+  };
+
+  const handleRemoveStreamingLink = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      streamingLinks: prev.streamingLinks.filter((_, i) => i !== index),
+    }));
+    // Clear errors for removed link
+    const newErrors = { ...streamingLinkErrors };
+    delete newErrors[`platform_${index}`];
+    delete newErrors[`url_${index}`];
+    // Reindex remaining errors
+    const reindexedErrors = {};
+    Object.keys(newErrors).forEach((key) => {
+      const [type, idx] = key.split('_');
+      const idxNum = parseInt(idx);
+      if (idxNum > index) {
+        reindexedErrors[`${type}_${idxNum - 1}`] = newErrors[key];
+      } else if (idxNum < index) {
+        reindexedErrors[key] = newErrors[key];
+      }
+    });
+    setStreamingLinkErrors(reindexedErrors);
+  };
+
+  const handleStreamingLinkChange = (index, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      streamingLinks: prev.streamingLinks.map((link, i) =>
+        i === index ? { ...link, [field]: value } : link
+      ),
+    }));
+    // Clear error for this field
+    const errorKey = `${field}_${index}`;
+    if (streamingLinkErrors[errorKey]) {
+      setStreamingLinkErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[errorKey];
+        return newErrors;
+      });
     }
   };
 
@@ -117,6 +198,9 @@ const MovieForm = ({ movie = null, onSubmit, onCancel, loading = false }) => {
         ...formData,
         duration: parseInt(formData.duration),
         rating: parseFloat(formData.rating),
+        streamingLinks: formData.streamingLinks.filter(
+          (link) => link.platform?.trim() && link.url?.trim()
+        ),
       });
     } else {
       // Scroll to first error field
@@ -256,6 +340,116 @@ const MovieForm = ({ movie = null, onSubmit, onCancel, loading = false }) => {
               },
             }}
           />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            label="YouTube Trailer ID (optional)"
+            name="trailerId"
+            value={formData.trailerId}
+            onChange={handleChange}
+            error={!!errors.trailerId}
+            helperText={errors.trailerId || 'Enter YouTube video ID only (11 characters, e.g., dQw4w9WgXcQ)'}
+            placeholder="dQw4w9WgXcQ"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PlayArrowIcon sx={{ color: 'text.secondary' }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              },
+            }}
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Divider sx={{ my: 2, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LinkIcon sx={{ fontSize: 20 }} />
+              Streaming Links (optional)
+            </Typography>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={handleAddStreamingLink}
+              sx={{
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+                color: 'text.primary',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  backgroundColor: 'rgba(229, 9, 20, 0.1)',
+                },
+              }}
+            >
+              Add Link
+            </Button>
+          </Box>
+
+          {formData.streamingLinks.length === 0 && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontStyle: 'italic' }}>
+              No streaming links added. Click "Add Link" to add platforms like Netflix, Amazon Prime, etc.
+            </Typography>
+          )}
+
+          {formData.streamingLinks.map((link, index) => (
+            <Grid container spacing={2} key={index} sx={{ mb: 2 }}>
+              <Grid item xs={12} md={5}>
+                <TextField
+                  fullWidth
+                  label="Platform Name"
+                  value={link.platform}
+                  onChange={(e) => handleStreamingLinkChange(index, 'platform', e.target.value)}
+                  error={!!streamingLinkErrors[`platform_${index}`]}
+                  helperText={streamingLinkErrors[`platform_${index}`]}
+                  placeholder="e.g., Netflix, Amazon Prime"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Streaming URL"
+                  value={link.url}
+                  onChange={(e) => handleStreamingLinkChange(index, 'url', e.target.value)}
+                  error={!!streamingLinkErrors[`url_${index}`]}
+                  helperText={streamingLinkErrors[`url_${index}`] || 'Enter full URL'}
+                  placeholder="https://www.netflix.com/title/..."
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={1}>
+                <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                  <IconButton
+                    color="error"
+                    onClick={() => handleRemoveStreamingLink(index)}
+                    sx={{
+                      backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(211, 47, 47, 0.2)',
+                      },
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              </Grid>
+            </Grid>
+          ))}
         </Grid>
 
         <Grid item xs={12}>

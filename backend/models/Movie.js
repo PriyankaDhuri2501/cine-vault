@@ -40,6 +40,43 @@ const movieSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    trailerId: {
+      type: String,
+      trim: true,
+      default: '',
+      validate: {
+        validator: function(v) {
+          // YouTube video ID is typically 11 characters, but we allow empty string
+          return !v || /^[a-zA-Z0-9_-]{11}$/.test(v);
+        },
+        message: 'Trailer ID must be a valid YouTube video ID (11 characters)',
+      },
+    },
+    streamingLinks: [
+      {
+        platform: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        url: {
+          type: String,
+          required: true,
+          trim: true,
+          validate: {
+            validator: function(v) {
+              try {
+                new URL(v);
+                return true;
+              } catch {
+                return false;
+              }
+            },
+            message: 'Streaming link must be a valid URL',
+          },
+        },
+      },
+    ],
     addedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

@@ -10,6 +10,7 @@ import {
   Alert,
   Grid,
   Divider,
+  Link,
 } from '@mui/material';
 import {
   AccessTime as AccessTimeIcon,
@@ -18,11 +19,14 @@ import {
   ArrowBack as ArrowBackIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  PlayArrow as PlayArrowIcon,
+  OpenInNew as OpenInNewIcon,
 } from '@mui/icons-material';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
 import ConfirmationModal from '../components/common/ConfirmationModal';
+import TrailerModal from '../components/movies/TrailerModal';
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -35,6 +39,7 @@ const MovieDetails = () => {
   const [error, setError] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [trailerModalOpen, setTrailerModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -200,6 +205,21 @@ const MovieDetails = () => {
           </Typography>
 
           <Box sx={{ mt: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            {movie.trailerId && (
+              <Button
+                variant="contained"
+                startIcon={<PlayArrowIcon />}
+                onClick={() => setTrailerModalOpen(true)}
+                sx={{
+                  background: 'linear-gradient(45deg, #e50914, #f40612)',
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #f40612, #b20710)',
+                  },
+                }}
+              >
+                Watch Trailer
+              </Button>
+            )}
             <Button
               variant={isInWatchlist(movie._id) ? 'outlined' : 'contained'}
               startIcon={<StarIcon />}
@@ -218,6 +238,55 @@ const MovieDetails = () => {
               {isInWatchlist(movie._id) ? 'Remove from Watchlist' : 'Add to Watchlist'}
             </Button>
           </Box>
+
+          {/* Where to Watch Section */}
+          {movie.streamingLinks && movie.streamingLinks.length > 0 && (
+            <Box sx={{ mt: 4 }}>
+              <Divider sx={{ mb: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                <OpenInNewIcon sx={{ fontSize: 24 }} />
+                Where to Watch
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                {movie.streamingLinks.map((link, index) => (
+                  <Chip
+                    key={index}
+                    component={Link}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    label={link.platform}
+                    icon={<OpenInNewIcon sx={{ fontSize: 16 }} />}
+                    clickable
+                    sx={{
+                      backgroundColor: 'rgba(229, 9, 20, 0.15)',
+                      color: '#e50914',
+                      fontWeight: 600,
+                      border: '1px solid rgba(229, 9, 20, 0.3)',
+                      fontSize: '0.95rem',
+                      py: 2.5,
+                      '&:hover': {
+                        backgroundColor: 'rgba(229, 9, 20, 0.25)',
+                        borderColor: '#e50914',
+                      },
+                      '& .MuiChip-icon': {
+                        color: '#e50914',
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
 
           {isAdmin && (
             <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
@@ -250,6 +319,15 @@ const MovieDetails = () => {
         title="Delete Movie"
         message="Are you sure you want to delete this movie? This action cannot be undone."
         confirmText="Delete"
+      />
+
+      {/* Trailer Modal */}
+      <TrailerModal
+        open={trailerModalOpen}
+        onClose={() => setTrailerModalOpen(false)}
+        trailerId={movie?.trailerId}
+        movieTitle={movie?.title}
+        streamingLinks={movie?.streamingLinks}
       />
     </Container>
   );

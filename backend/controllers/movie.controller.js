@@ -16,7 +16,7 @@ export const getAllMovies = asyncHandler(async (req, res, next) => {
 
   // Optimized query: use lean() for better performance, select only needed fields
   const movies = await Movie.find()
-    .select('title description releaseDate duration rating poster addedBy createdAt')
+    .select('title description releaseDate duration rating poster trailerId streamingLinks addedBy createdAt')
     .populate('addedBy', 'username email')
     .sort({ createdAt: -1 })
     .skip(skip)
@@ -48,7 +48,7 @@ export const getAllMovies = asyncHandler(async (req, res, next) => {
  */
 export const getMovieById = asyncHandler(async (req, res, next) => {
   const movie = await Movie.findById(req.params.id)
-    .select('title description releaseDate duration rating poster addedBy createdAt')
+    .select('title description releaseDate duration rating poster trailerId streamingLinks addedBy createdAt')
     .populate('addedBy', 'username email')
     .lean();
 
@@ -251,7 +251,7 @@ export const searchMovies = asyncHandler(async (req, res, next) => {
 
   // Optimized search query with lean() and field selection
   const movies = await Movie.find(searchQuery)
-    .select('title description releaseDate duration rating poster addedBy createdAt')
+    .select('title description releaseDate duration rating poster trailerId streamingLinks addedBy createdAt')
     .populate('addedBy', 'username email')
     .sort({ createdAt: -1 })
     .skip(skip)

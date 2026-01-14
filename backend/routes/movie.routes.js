@@ -52,6 +52,24 @@ const movieValidation = [
     .optional()
     .isURL()
     .withMessage('Poster must be a valid URL'),
+  body('trailerId')
+    .optional()
+    .trim()
+    .matches(/^[a-zA-Z0-9_-]{11}$/)
+    .withMessage('Trailer ID must be a valid YouTube video ID (11 characters)'),
+  body('streamingLinks')
+    .optional()
+    .isArray()
+    .withMessage('Streaming links must be an array'),
+  body('streamingLinks.*.platform')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('Platform name is required'),
+  body('streamingLinks.*.url')
+    .optional()
+    .isURL()
+    .withMessage('Streaming link must be a valid URL'),
 ];
 
 /**
