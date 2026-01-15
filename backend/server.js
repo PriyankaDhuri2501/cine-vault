@@ -18,6 +18,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running in ${ENV} mode on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`📍 API Base: http://localhost:${PORT}/api`);
+  // Note: localhost URLs only shown in development
 });
 
 // Handle unhandled promise rejections
