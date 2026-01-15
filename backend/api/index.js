@@ -1,11 +1,3 @@
-/**
- * Vercel Serverless Function Entry Point
- * This file is the entry point for Vercel serverless functions
- * Located at: backend/api/index.js
- * 
- * Vercel will route all requests to /api/* to this function
- */
-
 import app from '../app.js';
 import connectDB from '../config/database.js';
 import mongoose from 'mongoose';
