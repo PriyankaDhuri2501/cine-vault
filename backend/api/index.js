@@ -1,11 +1,3 @@
-/**
- * Vercel Serverless Function Entry Point
- * This file is the entry point for Vercel serverless functions
- * Located at: backend/api/index.js
- * 
- * Vercel will route all requests to /api/* to this function
- */
-
 import app from '../app.js';
 import connectDB from '../config/database.js';
 
@@ -30,7 +22,6 @@ async function ensureDatabaseConnection() {
 
 // Vercel serverless function handler
 export default async function handler(req, res) {
-  // Ensure MongoDB connection before handling request
   try {
     await ensureDatabaseConnection();
   } catch (error) {
@@ -41,7 +32,5 @@ export default async function handler(req, res) {
     });
   }
 
-  // Handle the request with Express app
-  // Express app will handle routing, middleware, etc.
   return app(req, res);
 }

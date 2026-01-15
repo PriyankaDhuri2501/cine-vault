@@ -23,8 +23,8 @@ const connectDB = async () => {
     console.log('🔄 Attempting to connect to MongoDB...');
     
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-      socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+      serverSelectionTimeoutMS: 5000, 
+      socketTimeoutMS: 45000, 
     });
 
     cachedConnection = conn;
@@ -42,7 +42,7 @@ const connectDB = async () => {
       cachedConnection = null;
     });
 
-    // Only set up process handlers in non-serverless environments
+    
     if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
       process.on('SIGINT', async () => {
         await mongoose.connection.close();

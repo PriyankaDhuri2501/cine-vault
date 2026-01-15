@@ -3,7 +3,7 @@
 A full-stack movie management application built with the MERN stack (MongoDB, Express.js, React, Node.js). CineVault provides a premium movie browsing experience with features like watchlists, recently viewed movies, trailer viewing, and comprehensive admin controls.
 
 ![CineVault](https://img.shields.io/badge/CineVault-MERN%20Stack-red?style=for-the-badge)
-![License](https://img.shields.io/badge/license-ISC-blue?style=for-the-badge)
+
 
 ## 🎬 Features
 
@@ -26,7 +26,7 @@ A full-stack movie management application built with the MERN stack (MongoDB, Ex
 
 ## 🚀 Live Application
 
-**Live URL**: [Add your deployed application URL here]
+**Live URL**: https://cine-vault1.vercel.app
 
 ## 📋 Prerequisites
 

@@ -1,22 +1,13 @@
 import axios from 'axios';
 
-/**
- * Axios instance with base configuration
- * 
- * For production (separate backend): Set VITE_API_URL=https://cine-vault-umber.vercel.app/api
- * For development: Uses '/api' which is proxied to http://localhost:5000
- */
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: false, // JWT tokens in headers, not cookies
+  withCredentials: false, 
 });
 
-/**
- * Request interceptor to add JWT token to headers
- */
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -37,7 +28,6 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
