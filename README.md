@@ -153,23 +153,6 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "User registered successfully",
-  "data": {
-    "user": {
-      "id": "...",
-      "username": "johndoe",
-      "email": "john@gmail.com",
-      "role": "user"
-    },
-    "token": "jwt_token_here"
-  }
-}
-```
-
 #### Login
 ```http
 POST /api/auth/login
@@ -178,23 +161,6 @@ Content-Type: application/json
 {
   "emailOrUsername": "admin@gmail.com",
   "password": "admin123"
-}
-```
-
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "Login successful",
-  "data": {
-    "user": {
-      "id": "...",
-      "username": "admin",
-      "email": "admin@gmail.com",
-      "role": "admin"
-    },
-    "token": "jwt_token_here"
-  }
 }
 ```
 
@@ -292,19 +258,20 @@ Content-Type: application/json
     }
   ]
 }
-```
 
-**Response:**
-```json
-{
-  "status": "accepted",
-  "message": "2 movie(s) queued for processing",
-  "data": {
-    "queued": 2,
-    "totalInQueue": 2,
-    "processing": false
-  }
-}
+```
+**Required Fields:**
+- `title` (string)
+- `description` (string)
+- `releaseDate` (ISO 8601 date string: YYYY-MM-DD)
+- `duration` (number, in minutes)
+- `rating` (number, 0-10)
+
+**Optional Fields:**
+- `poster` (string, URL)
+- `trailerId` (string, 11-character YouTube video ID)
+- `streamingLinks` (array of objects with `platform` and `url`)
+
 ```
 
 #### Get Queue Status (Admin Only)
@@ -383,40 +350,6 @@ After running the `npm run create-admin` script, you can login with:
 
 > ⚠️ **Security Note**: These are default credentials for initial setup. Please change the password immediately after first login in a production environment.
 
-## 📁 Project Structure
-
-```
-cinevault/
-├── backend/
-│   ├── config/           # Database and JWT configuration
-│   ├── controllers/      # Route controllers
-│   ├── middleware/       # Authentication, validation, error handling
-│   ├── models/           # MongoDB schemas
-│   ├── routes/           # API routes
-│   ├── scripts/          # Utility scripts (createAdmin.js)
-│   ├── utils/            # Helper functions and utilities
-│   ├── .env              # Environment variables (create this)
-│   ├── package.json
-│   └── server.js         # Entry point
-│
-├── frontend/
-│   ├── public/           # Static assets
-│   ├── src/
-│   │   ├── components/   # React components
-│   │   │   ├── admin/    # Admin-specific components
-│   │   │   ├── auth/     # Authentication components
-│   │   │   ├── layout/   # Layout components (Navbar, Footer)
-│   │   │   └── movies/   # Movie-related components
-│   │   ├── context/      # React Context (Auth, Watchlist)
-│   │   ├── pages/        # Page components
-│   │   ├── theme/        # Material-UI theme configuration
-│   │   └── utils/        # Utility functions
-│   ├── package.json
-│   └── vite.config.js
-│
-└── README.md
-```
-
 ## 🛡️ Security Features
 
 - **JWT Authentication**: Secure token-based authentication
@@ -446,63 +379,6 @@ cinevault/
 - **Axios** - HTTP client
 - **Vite** - Build tool
 
-## 📝 Bulk Movie Upload
-
-### JSON Format Example
-
-Create a JSON file with the following structure:
-
-```json
-[
-  {
-    "title": "The Dark Knight",
-    "description": "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
-    "releaseDate": "2008-07-18",
-    "duration": 152,
-    "rating": 9.0,
-    "poster": "https://example.com/posters/dark-knight.jpg",
-    "trailerId": "EXeTwQWrcwY",
-    "streamingLinks": [
-      {
-        "platform": "Netflix",
-        "url": "https://www.netflix.com/title/70079583"
-      },
-      {
-        "platform": "Amazon Prime Video",
-        "url": "https://www.amazon.com/dp/B001V9N4YW"
-      }
-    ]
-  },
-  {
-    "title": "Inception",
-    "description": "A skilled thief is given a chance at redemption if he can pull off an impossible task: Inception, planting an idea in someone's mind.",
-    "releaseDate": "2010-07-16",
-    "duration": 148,
-    "rating": 8.8,
-    "poster": "https://example.com/posters/inception.jpg",
-    "trailerId": "YoHD9xeInc0",
-    "streamingLinks": [
-      {
-        "platform": "HBO Max",
-        "url": "https://www.hbomax.com/feature/inception"
-      }
-    ]
-  }
-]
-```
-
-**Required Fields:**
-- `title` (string)
-- `description` (string)
-- `releaseDate` (ISO 8601 date string: YYYY-MM-DD)
-- `duration` (number, in minutes)
-- `rating` (number, 0-10)
-
-**Optional Fields:**
-- `poster` (string, URL)
-- `trailerId` (string, 11-character YouTube video ID)
-- `streamingLinks` (array of objects with `platform` and `url`)
-
 ## 🚀 Deployment
 
 ### Backend Deployment (Example: Heroku/Railway/Render)
@@ -522,24 +398,13 @@ Create a JSON file with the following structure:
 2. Deploy the `dist` folder
 3. Update API base URL in `frontend/src/utils/api.js` if needed
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the ISC License.
 
 ## 👤 Author
 
-[Your Name]
+[Priyanka Deepak Dhuri]
 
 ## 🙏 Acknowledgments
 
 - Material-UI for the component library
 - MongoDB for the database
 - All the open-source contributors
-
----
-
-**Note**: This is a project built for demonstration purposes. Ensure proper security measures are in place before deploying to production.
